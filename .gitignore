@@ -3,3 +3,5 @@ data
 username.txt
 password.txt
 *~
+*.log
+cookies*.txt
