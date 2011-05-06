@@ -2,8 +2,21 @@
 #./snook.sh start end processes
 function instantiate
 {
-  for id in `seq $1 $2`; do ./bff.sh $id cookies-$$.sh;done >$1"-"$2.log 2>&1 &
+  echo "started a thread that goes from $1 to $2"
+  bash -c "seq $1 $2 | xargs -n 1 -i ./bff.sh '{}' cookies-\$\$.txt" >>$1"-"$2.log 2>&1 &
 }
+
+USERNAME=`cat username.txt`
+PASSWORD=`cat password.txt`
+# trim whitespace
+USERNAME=${USERNAME/ /}
+PASSWORD=${PASSWORD/ /}
+
+if [[ ! $USERNAME =~ @ ]]
+then
+  echo "Enter your username (your Friendster email) in username.txt and your password in password.txt."
+  exit 3
+fi
 
 START=$1
 END=$2
@@ -17,11 +30,9 @@ echo "Running $idcount IDs in $NUMPROC processes, with $perproc per process. The
 for thread in `seq 0 $((NUMPROC-2))`; do
   threadstart=$((START+(perproc * thread+1)))
   threadend=$((threadstart+perproc-1))
-  echo "threadstart is $threadstart and threadend is $threadend"
   instantiate $threadstart $threadend
 done
 
 threadstart=$((START+(perproc*(NUMPROC-1)+1)))
 threadend=$((threadstart+perproc+extra-1))
-echo "threadstart is $threadstart and threadend is $threadend"
 instantiate $threadstart $threadend
