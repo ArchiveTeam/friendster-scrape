@@ -3,7 +3,7 @@
 function instantiate
 {
   echo "started a thread that goes from $1 to $2"
-  bash -c "seq $1 $2 | xargs -n 1 -i ./bff.sh '{}' cookies-\$\$.txt" >>$1"-"$2.log 2>&1 &
+  ./bff-thread.sh $1 $2 >>$1"-"$2.log 2>&1 &
 }
 
 USERNAME=`cat username.txt`
