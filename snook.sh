@@ -28,11 +28,11 @@ extra=$((idcount-perproc*NUMPROC))
 echo "Running $idcount IDs in $NUMPROC processes, with $perproc per process. The last process has $extra extra due to division mismatch"
 
 for thread in `seq 0 $((NUMPROC-2))`; do
-  threadstart=$((START+(perproc * thread)-1))
-  threadend=$((threadstart+perproc))
+  threadstart=$((START+(perproc * thread)))
+  threadend=$((threadstart+perproc-1))
   instantiate $threadstart $threadend
 done
 
-threadstart=$((START+(perproc*(NUMPROC-1)-1)))
+threadstart=$((START+(perproc*(NUMPROC-1))))
 threadend=$END
 instantiate $threadstart $threadend
