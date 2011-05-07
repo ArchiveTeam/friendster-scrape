@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Version 12: fixed pagination of the shoutout stream
+# Version 11: limit the depth of the blog mirroring (prevents infinite recursion on blogs with problems)
 # Version 10: some textual changes and a better check for the login result
 # Version 9: fix photo regex issue with older versions of GNU grep
 # Version 8: grab all files for blogs.
@@ -375,7 +377,7 @@ while [[ $shouts -lt $number_of_shouts ]]
 do
   echo " - shoutout stream $page"
   # download page
-  $WGET -U "$USER_AGENT" -O $PROFILE_DIR/shoutout_${page}.html "http://www.friendster.com/shoutoutstream.php?uid=$PROFILE_ID&page=$PAGE"
+  $WGET -U "$USER_AGENT" -O $PROFILE_DIR/shoutout_${page}.html "http://www.friendster.com/shoutoutstream.php?uid=$PROFILE_ID&page=$page"
 
   number=`grep -o -E "totalShoutouts = [0-9]+" $PROFILE_DIR/shoutout_${page}.html | grep -o -E "[0-9]+"`
   if [[ $number_of_shouts -lt $number ]]
@@ -440,7 +442,8 @@ then
   wget --directory-prefix="$PROFILE_DIR/blog/" \
        -e robots=off \
        -a "$PROFILE_DIR/wget.log" \
-       -nv --mirror -np -E -H -k -K -p \
+       -nv -N -r -l 20 --no-remove-listing \
+       -np -E -H -k -K -p \
        -U "$USER_AGENT" \
        -D "${blog_host}.blog.friendster.com,${blog_host}.blogs.friendster.com" \
        http://$blog_domain/
