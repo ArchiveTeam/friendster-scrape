@@ -26,13 +26,13 @@ time=0
     time=$(date +%s)
     echo -n "Have $(( $size / 1024 ))M"
     echo -n " in $(ls */*/*|grep -v ':'|grep -o "[0-9][0-9]*" | wc -l) files,"
-    kbps=$(( $(( $size - $previous_size )) / $(( $time - $previous_time )) ))
-    echo -n " growing at ${kbps}k/s."
+#    kbps=$(( $(( $size - $previous_size )) / $(( $time - $previous_time )) ))
+#    echo -n " growing at ${kbps}k/s."
     free_space_kb=$(df -Pk . | df_filter | tail -n1)
     echo -n " $(( ${free_space_kb} / 1024 ))M of free space"
-    if [ $kbps -gt 0 ]; then 
-        echo -n ", will last until $(date -d @$(( $(date +%s) + $free_space_kb / $kbps ))), threads: $(pgrep bff-thread|wc -l)"
-    fi
+#    if [ $kbps -gt 0 ]; then 
+#        echo -n ", will last until $(date -d @$(( $(date +%s) + $free_space_kb / $kbps ))), threads: $(pgrep bff-thread|wc -l)"
+#    fi
     echo -n .
     if [ -f STOP ]; then
         echo " STOP file exists."
