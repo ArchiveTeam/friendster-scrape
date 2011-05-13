@@ -1,0 +1,46 @@
+#!/bin/bash
+set -eu
+interval=1
+# The following might need tuning for non-GNU df(1)s
+df_filter() {
+    sed 's/  */\t/g' | cut -f 4
+}
+
+case $(df -P . | df_filter | head -n1) in
+    Available)
+        # Okay, we picked the right column from the output
+        ;;
+    *)
+        echo "Sorry, I don't know how to parse the output of your df command. Please try to fix me..."
+        exit 1
+        ;;
+esac
+
+free_space_threshold_kb=$(( 128 * 1024 ))
+
+size=0
+time=0
+    previous_size=$size
+    previous_time=$time
+    size=$(du -kc . | tail -n1 | cut -f1)
+    time=$(date +%s)
+    echo -n "Have $(( $size / 1024 ))M"
+    echo -n " in $(ls */*/*|grep -v '/' | wc -l) files,"
+    kbps=$(( $(( $size - $previous_size )) / $(( $time - $previous_time )) ))
+    echo -n " growing at ${kbps}k/s."
+    free_space_kb=$(df -Pk . | df_filter | tail -n1)
+    echo -n " $(( ${free_space_kb} / 1024 ))M of free space"
+    if [ $kbps -gt 0 ]; then 
+        echo -n ", will last until $(date -d @$(( $(date +%s) + $free_space_kb / $kbps ))), threads: $(pgrep bff-thread|wc -l)"
+    fi
+    echo -n .
+    if [ -f STOP ]; then
+        echo " STOP file exists."
+    else
+        echo
+        if [ $free_space_kb -lt $free_space_threshold_kb ]; then
+            echo "Running out of disk space! Creating STOP file to warn listerine."
+#            touch STOP
+        fi
+    fi
+    sleep $interval
