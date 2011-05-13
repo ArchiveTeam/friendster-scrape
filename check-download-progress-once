@@ -25,7 +25,7 @@ time=0
     size=$(du -kc . | tail -n1 | cut -f1)
     time=$(date +%s)
     echo -n "Have $(( $size / 1024 ))M"
-    echo -n " in $(ls */*/*|grep -v '^/'|grep -o "[0-9][0-9]*" | wc -l) files,"
+    echo -n " in $(ls */*/*|grep -v ':'|grep -o "[0-9][0-9]*" | wc -l) files,"
     kbps=$(( $(( $size - $previous_size )) / $(( $time - $previous_time )) ))
     echo -n " growing at ${kbps}k/s."
     free_space_kb=$(df -Pk . | df_filter | tail -n1)
