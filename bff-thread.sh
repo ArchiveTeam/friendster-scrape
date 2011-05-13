@@ -1,6 +1,6 @@
 #!/bin/bash
 #./bff-thread.sh start end
-seq $1 $2 | while read id; do
+for ((id=${1}; id<=${2}; id++)); do
   ./bff.sh $id cookies-\$\$.txt;
   if [ -f STOP ]; then
     echo "Stopping at user request";
