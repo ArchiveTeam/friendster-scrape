@@ -20,13 +20,6 @@ CUR=$START
 
 RANGE=$((END-START+1))
 
-calcpct()
-{
-	v=$((CUR-START))
-	pct=$((100 * v / RANGE))
-	return $pct
-}
-
 # map from PID to cookie jar
 declare -A CHILDREN
 
@@ -143,10 +136,11 @@ while [ $KEEPGOING -eq 1 ]; do
 	done
 
 	# present statistics
+	v=$((CUR-START))
+	pct=$((100 * v / RANGE))
 	echo
-	calcpct
 	echo "next block starts at $CUR."
-	echo "${?}% of range ${START}-${END} assigned or completed."
+	echo "${pct}% of range ${START}-${END} assigned or completed."
 	echo "running threads (${RUNNING}/${WANT}):"
 	for c in ${COOKIEJARS[@]}; do
 		s=${thread_range[$c]}
