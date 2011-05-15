@@ -2,12 +2,12 @@
 
 # usage: ./chunky.sh START END THREADS
 # will download range START to END in chunks of 1000, keeping THREADS downloaders going
-# press ^C to exit or to change the number of threads.
+# press e to exit or t to change the number of threads.
 # while running, statistics are occasionally output
 
 if [ $# -ne 3 ]; then
 	echo USAGE: $0 START END THREADS
-	echo The number of threads can be changed while running by pressing ^C
+	echo The number of threads can be changed while running by pressing t
 	exit 1
 fi
 
@@ -97,15 +97,9 @@ checkchildren()
 	RUNNING=${#CHILDREN[*]}
 }
 
-inttrap()
+askexit()
 {
-	GETINPUT=1
-}
-
-trap inttrap INT
-
-getinput()
-{
+	echo
 	echo "Do you wish to stop? [y/N]"
 	read e
 	if [ "$e" == "y" ]; then
@@ -113,20 +107,24 @@ getinput()
 		KEEPGOING=0
 		# tell our children to stop
 		touch STOP
+	fi
+}
+
+askthreads()
+{
+	echo
+	if [ $WANT -eq 0 ]; then
+		echo no more blocks to assign. unable to change thread count.
 	else
-		if [ $WANT -eq 0 ]; then
-			echo no more blocks to assign. unable to change thread count.
-		else
-			echo "How many threads do you want to run? [$WANT]"
-			read w
-			if [ -n "$w" ]; then
-				# verify a valid number
-				w=`echo $w|grep -E '^[1-9][0-9]*$'`
-				if [ -z "$w" ]; then
-					echo invalid thread count. staying with $WANT
-				else
-					WANT=$w
-				fi
+		echo "How many threads do you want to run? [$WANT]"
+		read w
+		if [ -n "$w" ]; then
+			# verify a valid number
+			w=`echo $w|grep -E '^[1-9][0-9]*$'`
+			if [ -z "$w" ]; then
+				echo invalid thread count. staying with $WANT
+			else
+				WANT=$w
 			fi
 		fi
 	fi
@@ -136,16 +134,6 @@ getinput()
 [ -f STOP ] && rm STOP
 
 while [ $KEEPGOING -eq 1 ]; do
-
-	# check to see if ^C was pressed
-	if [ $GETINPUT -eq 1 ]; then
-		# present the prompts
-		getinput
-		GETINPUT=0
-		# if the user selected to stop, then skip the rest of the loop
-		if [ $KEEPGOING -eq 0 ]; then continue; fi
-	fi
-
 	# check to see if any children have finished
 	checkchildren
 
@@ -167,7 +155,8 @@ while [ $KEEPGOING -eq 1 ]; do
 		pct=$((v / 10))
 		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
 	done
-	echo "press ^C to exit or change number of threads"
+	echo "press e to exit or t to change number of threads"
+	echo "any other key will update stats, or wait 30 seconds"
 
 	# check to see if we should keep going this is before the sleep so that
 	# the sleep is almost certainly what gets interrupted with ^c, as everything
@@ -177,7 +166,17 @@ while [ $KEEPGOING -eq 1 ]; do
 	fi
 
 	# sleep for a bit
-	[ $KEEPGOING -eq 1 ] && sleep 30
+	read -t 30 -n 1 dummy
+	# exit code greater than 128 means timeout
+	if [ $? -le 128 ]; then
+		if [ "$dummy" == "e" ]; then
+			askexit
+		else
+			if [ "$dummy" == "t" ]; then
+				askthreads
+			fi
+		fi
+	fi
 done
 
 # wait for any running threads to finish (will only happen if we stopped early)
