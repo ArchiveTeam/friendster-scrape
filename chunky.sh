@@ -145,8 +145,9 @@ while [ $KEEPGOING -eq 1 ]; do
 	# present statistics
 	echo
 	calcpct
-	echo "next block starts at $CUR. ${?}% of range assigned or completed."
-	echo "$RUNNING (of ${WANT}) threads running."
+	echo "next block starts at $CUR."
+	echo "${?}% of range ${START}-${END} assigned or completed."
+	echo "running threads (${RUNNING}/${WANT}):"
 	for c in ${COOKIEJARS[@]}; do
 		s=${thread_range[$c]}
 		e=$((s+999))
