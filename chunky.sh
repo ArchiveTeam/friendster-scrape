@@ -153,9 +153,12 @@ while [ $KEEPGOING -eq 1 ]; do
 	[ $KEEPGOING -eq 1 ] && sleep 30
 done
 
-if [ ${#COOKIEJARS[@]} -gt 0 ]; then
-	echo out of loop, waiting for ${#COOKIEJARS[@]} children to finish
-	wait ${COOKIEJARS[@]}
-fi
+# wait for any running threads to finish (will only happen if we stopped early)
+while [ $RUNNING -gt 0 ]; do
+	echo waiting for $RUNNING threads to finish their current profile
+	sleep 10
+	checkchildren
+done
+
 echo done.
 
