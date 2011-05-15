@@ -164,13 +164,10 @@ while [ $KEEPGOING -eq 1 ]; do
 	read -t 30 -n 1 dummy
 	# exit code greater than 128 means timeout
 	if [ $? -le 128 ]; then
-		if [ "$dummy" == "e" ]; then
-			askexit
-		else
-			if [ "$dummy" == "t" ]; then
-				askthreads
-			fi
-		fi
+		case "$dummy" in
+		e|E) askexit;;
+		t|T) askthreads;;
+		esac
 	fi
 done
 
