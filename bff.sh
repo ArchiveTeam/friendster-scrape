@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 13: reduce blog fetch read timeout to 2 minutes (from 15) to move on after 40 minutes instead of 5 hours
 # Version 12: fixed pagination of the shoutout stream
 # Version 11: limit the depth of the blog mirroring (prevents infinite recursion on blogs with problems)
 # Version 10: some textual changes and a better check for the login result
@@ -444,9 +445,12 @@ then
        -a "$PROFILE_DIR/wget.log" \
        -nv -N -r -l 20 --no-remove-listing \
        -np -E -H -k -K -p \
+       --read-timeout=120 \
        -U "$USER_AGENT" \
        -D "${blog_host}.blog.friendster.com,${blog_host}.blogs.friendster.com" \
        http://$blog_domain/
+  # wget reports 4 on network errors, which includes read timeouts
+  [ $? -eq 4 ] && touch "$PROFILE_DIR/.blog_network_errors"
 fi
 
 
