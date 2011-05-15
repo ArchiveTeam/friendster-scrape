@@ -33,6 +33,11 @@ declare -A CHILDREN
 # map from cookie jar to PID
 declare -A COOKIEJARS
 
+# what is the start of the range for each PID
+declare -A thread_range
+# and current profile
+declare -A thread_current
+
 KEEPGOING=1
 GETINPUT=0
 
@@ -58,6 +63,8 @@ startchild()
 	# record the new child
 	CHILDREN[$cn]=$jarnum
 	COOKIEJARS[$jarnum]=$cn
+	thread_range[$cn]=$s
+	thread_current[$cn]=$s
 	RUNNING=${#CHILDREN[@]}
 
 	# if we hit the end of the range, we don't want to start more children, ever
@@ -71,9 +78,20 @@ checkchildren()
 	for c in ${COOKIEJARS[@]}; do
 		kill -0 $c 2>/dev/null
 		if [ $? -eq 1 ]; then
+			# thread is gone. clear information related to it
 			jar=${CHILDREN[$c]}
 			unset CHILDREN[$c]
 			unset COOKIEJARS[$jar]
+			unset thread_range[$c]
+			unset thread_current[$c]
+		else
+			# thread is alive. get the current status of the thread
+			s=${thread_range[$c]}
+			e=$((s+999))
+			cur=`cat bffthread-${c} 2>/dev/null`
+			if [ "$cur" ]; then
+				thread_current[$c]=$cur
+			fi
 		fi
 	done
 	RUNNING=${#CHILDREN[*]}
@@ -137,9 +155,18 @@ while [ $KEEPGOING -eq 1 ]; do
 	done
 
 	# present statistics
+	echo
 	calcpct
 	echo "next block starts at $CUR. ${?}% of range assigned or completed."
 	echo "$RUNNING (of ${WANT}) threads running."
+	for c in ${COOKIEJARS[@]}; do
+		s=${thread_range[$c]}
+		e=$((s+999))
+		cur=${thread_current[$c]}
+		v=$((cur-s))
+		pct=$((v / 10))
+		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
+	done
 	echo "press ^C to exit or change number of threads"
 
 	# check to see if we should keep going this is before the sleep so that
