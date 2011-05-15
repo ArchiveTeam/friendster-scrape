@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # usage: ./chunky.sh START END THREADS
-# will download range START to END in chunks of 1000, keeping THREADS downloaders going
+# will download range START to END in chunks, keeping THREADS downloaders going
 # press e to exit or t to change the number of threads.
 # while running, statistics are occasionally output
 
@@ -14,6 +14,7 @@ fi
 START=$1
 END=$2
 WANT=$3
+STEP=100
 
 RUNNING=0
 CUR=$START
@@ -46,7 +47,7 @@ startchild()
 
 	# calculate range for this child
 	s=$CUR
-	CUR=$((CUR+1000))
+	CUR=$((CUR+STEP))
 	e=$((CUR-1))
 
 	# start the child and get the PID
@@ -80,7 +81,7 @@ checkchildren()
 		else
 			# thread is alive. get the current status of the thread
 			s=${thread_range[$c]}
-			e=$((s+999))
+			e=$((s+STEP-1))
 			cur=`cat bffthread-${c} 2>/dev/null`
 			if [ "$cur" ]; then
 				thread_current[$c]=$cur
@@ -144,10 +145,10 @@ while [ $KEEPGOING -eq 1 ]; do
 	echo "running threads (${RUNNING}/${WANT}):"
 	for c in ${COOKIEJARS[@]}; do
 		s=${thread_range[$c]}
-		e=$((s+999))
+		e=$((s+STEP-1))
 		cur=${thread_current[$c]}
 		v=$((cur-s))
-		pct=$((v / 10))
+		pct=$((100 * v / STEP))
 		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
 	done
 	echo "press e to exit or t to change number of threads"
