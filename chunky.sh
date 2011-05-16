@@ -174,6 +174,12 @@ while [ $KEEPGOING -eq 1 ]; do
 		t|T) askthreads;;
 		esac
 	fi
+
+	# check for STOP, which may have been created by a disk-space monitor script
+	if [ -f STOP ]; then
+		echo STOP file detected. shutting down.
+		KEEPGOING=0
+	fi
 done
 
 # wait for any running threads to finish (will only happen if we stopped early)
