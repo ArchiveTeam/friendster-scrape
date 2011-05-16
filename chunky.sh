@@ -93,6 +93,21 @@ checkchildren()
 	RUNNING=${#CHILDREN[*]}
 }
 
+threadreport()
+{
+	echo "running threads (${RUNNING}/${WANT}):"
+	for c in ${COOKIEJARS[@]}; do
+		s=${thread_range[$c]}
+		rng=${s#*:}
+		s=${s%:*}
+		e=$((s+rng-1))
+		cur=${thread_current[$c]}
+		v=$((cur-s))
+		pct=$((100 * v / rng))
+		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
+	done
+}
+
 askexit()
 {
 	echo
@@ -144,17 +159,7 @@ while [ $KEEPGOING -eq 1 ]; do
 	echo
 	[ $CUR -le $END ] && echo "next block starts at $CUR."
 	echo "${pct}% of range ${START}-${END} assigned or completed."
-	echo "running threads (${RUNNING}/${WANT}):"
-	for c in ${COOKIEJARS[@]}; do
-		s=${thread_range[$c]}
-		rng=${s#*:}
-		s=${s%:*}
-		e=$((s+rng-1))
-		cur=${thread_current[$c]}
-		v=$((cur-s))
-		pct=$((100 * v / rng))
-		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
-	done
+	threadreport
 	echo "press e to exit or t to change number of threads"
 	echo "any other key will update stats, or wait 30 seconds"
 
@@ -185,6 +190,7 @@ done
 # wait for any running threads to finish (will only happen if we stopped early)
 while [ $RUNNING -gt 0 ]; do
 	echo waiting for $RUNNING threads to finish their current profile
+	threadreport
 	sleep 10
 	checkchildren
 done
