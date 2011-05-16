@@ -142,7 +142,7 @@ while [ $KEEPGOING -eq 1 ]; do
 	v=$((CUR-START))
 	pct=$((100 * v / RANGE))
 	echo
-	echo "next block starts at $CUR."
+	[ $CUR -le $END ] && echo "next block starts at $CUR."
 	echo "${pct}% of range ${START}-${END} assigned or completed."
 	echo "running threads (${RUNNING}/${WANT}):"
 	for c in ${COOKIEJARS[@]}; do
