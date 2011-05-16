@@ -48,7 +48,11 @@ startchild()
 	# calculate range for this child
 	s=$CUR
 	CUR=$((CUR+STEP))
+	if [ $CUR -gt $END ]; then
+		CUR=$((END+1))
+	fi
 	e=$((CUR-1))
+	rng=$((e-s+1))
 
 	# start the child and get the PID
 	./bff-thread.sh $s $e cookies${jarnum}.txt >> friendster.${s}-${e}.log 2>&1 &
@@ -57,7 +61,7 @@ startchild()
 	# record the new child
 	CHILDREN[$cn]=$jarnum
 	COOKIEJARS[$jarnum]=$cn
-	thread_range[$cn]=$s
+	thread_range[$cn]=${s}:${rng}
 	thread_current[$cn]=$s
 	RUNNING=${#CHILDREN[@]}
 
@@ -80,8 +84,6 @@ checkchildren()
 			unset thread_current[$c]
 		else
 			# thread is alive. get the current status of the thread
-			s=${thread_range[$c]}
-			e=$((s+STEP-1))
 			cur=`cat bffthread-${c} 2>/dev/null`
 			if [ "$cur" ]; then
 				thread_current[$c]=$cur
@@ -145,10 +147,12 @@ while [ $KEEPGOING -eq 1 ]; do
 	echo "running threads (${RUNNING}/${WANT}):"
 	for c in ${COOKIEJARS[@]}; do
 		s=${thread_range[$c]}
-		e=$((s+STEP-1))
+		rng=${s#*:}
+		s=${s%:*}
+		e=$((s+rng-1))
 		cur=${thread_current[$c]}
 		v=$((cur-s))
-		pct=$((100 * v / STEP))
+		pct=$((100 * v / rng))
 		echo " thread covering ${s}-${e}: ${cur} (${pct}%)"
 	done
 	echo "press e to exit or t to change number of threads"
