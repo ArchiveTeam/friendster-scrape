@@ -5,16 +5,39 @@
 # press e to exit or t to change the number of threads.
 # while running, statistics are occasionally output
 
-if [ $# -ne 3 ]; then
+usage()
+{
 	echo USAGE: $0 START END THREADS
 	echo The number of threads can be changed while running by pressing t
 	exit 1
+}
+
+if [ $# -ne 3 ]; then
+	usage
 fi
 
-START=$1
-END=$2
-WANT=$3
+START=`echo $1|grep -E '^[1-9][0-9]*$'`
+END=`echo $2|grep -E '^[1-9][0-9]*$'`
+WANT=`echo $3|grep -E '^[1-9][0-9]*$'`
 STEP=100
+
+if [ -z "$START" ]; then
+	echo Invalid start value. Must be a positive integer.
+	usage
+fi
+if [ -z "$END" ]; then
+	echo Invalid end value. Must be a positive integer.
+	usage
+fi
+if [ -z "$WANT" ]; then
+	echo Invalid thread count. Must be a positive integer.
+	usage
+fi
+if [ $END -le $START ]; then
+	echo START must be less than END.
+	usage
+fi
+
 
 RUNNING=0
 CUR=$START
