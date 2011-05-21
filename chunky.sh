@@ -39,6 +39,10 @@ if [ $END -le $START ]; then
 fi
 
 
+# command to call for each thread.
+THREAD_COMMAND=./bff-thread.sh
+
+
 RUNNING=0
 CUR=$START
 
@@ -78,7 +82,7 @@ startchild()
 	rng=$((e-s+1))
 
 	# start the child and get the PID
-	./bff-thread.sh $s $e cookies${jarnum}.txt >> friendster.${s}-${e}.log 2>&1 &
+	$THREAD_COMMAND $s $e cookies${jarnum}.txt >> friendster.${s}-${e}.log 2>&1 &
 	cn=$!
 	
 	# record the new child
