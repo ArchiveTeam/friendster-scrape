@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 14: during blog download, reject files beginning with < to avoid infinite recursion/expansion on bad urls.
 # Version 13: reduce blog fetch read timeout to 2 minutes (from 15) to move on after 40 minutes instead of 5 hours
 # Version 12: fixed pagination of the shoutout stream
 # Version 11: limit the depth of the blog mirroring (prevents infinite recursion on blogs with problems)
@@ -444,7 +445,7 @@ then
        -e robots=off \
        -a "$PROFILE_DIR/wget.log" \
        -nv -N -r -l 20 --no-remove-listing \
-       -np -E -H -k -K -p \
+       -np -E -H -k -K -p -R "<*" \
        --read-timeout=120 \
        -U "$USER_AGENT" \
        -D "${blog_host}.blog.friendster.com,${blog_host}.blogs.friendster.com" \
