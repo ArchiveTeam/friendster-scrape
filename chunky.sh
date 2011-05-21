@@ -93,7 +93,7 @@ startchild()
 	RUNNING=${#CHILDREN[@]}
 
 	# if we hit the end of the range, we don't want to start more children, ever
-	if [ $CUR -ge $END ]; then
+	if [ $CUR -gt $END ]; then
 		WANT=0
 	fi
 }
@@ -193,7 +193,7 @@ while [ $KEEPGOING -eq 1 ]; do
 	# check to see if we should keep going this is before the sleep so that
 	# the sleep is almost certainly what gets interrupted with ^c, as everything
 	# else is fast
-	if [ $CUR -ge $END ] && [ $RUNNING -eq 0 ]; then
+	if [ $CUR -gt $END ] && [ $RUNNING -eq 0 ]; then
 		KEEPGOING=0
 	fi
 
