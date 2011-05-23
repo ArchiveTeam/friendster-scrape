@@ -42,11 +42,16 @@ fi
 # command to call for each thread.
 THREAD_COMMAND=./bff-thread.sh
 
-
 RUNNING=0
 CUR=$START
 
 RANGE=$((END-START+1))
+
+# check bash version for associative array support
+if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+	echo "error: chunky needs bash version 4.0 or greater. version $BASH_VERSION detected."
+	exit 1
+fi
 
 # map from PID to cookie jar
 declare -A CHILDREN
