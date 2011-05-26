@@ -3,10 +3,11 @@
 # chuncks of 100k userids will work correctly on most filesystems when
 # the userids are above 10 million
 
-if [ -f $1 ]; then
-  DIR=data
-else
+if [ -d $1 ]; then
   DIR=$1
+else
+  echo directory $1 not found
+  exit 1;
 fi
 DIR=`echo $DIR | sed -e 's/\///'`
 BACKUP=$DIR.backup.$$
@@ -24,6 +25,6 @@ find $BACKUP -mindepth 4 -maxdepth 4 | while read line; do
     PROFILE_DIR=$DIR/${WITH_PREFIX:0:3}/${WITH_PREFIX:3:3}/${WITH_PREFIX:6:3}
     mkdir -p $PROFILE_DIR
     OLD_PROFILE_DIR=`echo $PROFILE_DIR | sed -e "s/$DIR/$BACKUP/"`
-    echo mv $OLD_PROFILE_DIR/$PROFILE_ID $PROFILE_DIR
+    mv $OLD_PROFILE_DIR/$PROFILE_ID $PROFILE_DIR
 done
 rm -rf $BACKUP
