@@ -23,8 +23,11 @@ find $BACKUP -mindepth 4 -maxdepth 4 | while read line; do
         WITH_PREFIX=0$WITH_PREFIX
     done
     PROFILE_DIR=$DIR/${WITH_PREFIX:0:3}/${WITH_PREFIX:3:3}/${WITH_PREFIX:6:3}
+    # make sure the directory chain exists
     mkdir -p $PROFILE_DIR
-    OLD_PROFILE_DIR=`echo $PROFILE_DIR | sed -e "s/$DIR/$BACKUP/"`
-    mv $OLD_PROFILE_DIR/$PROFILE_ID $PROFILE_DIR
+    # move the profile
+    mv $line $PROFILE_DIR
 done
-rm -rf $BACKUP
+#rm -rf $BACKUP/[0-9]
+#mv $BACKUP/* $DIR
+#rm -rf $BACKUP
