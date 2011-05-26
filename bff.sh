@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 15: change directory structure; the old one wouldn't handle 100k chucks of userids > 10,000,000 on most filesystems
 # Version 14: during blog download, reject files beginning with < to avoid infinite recursion/expansion on bad urls.
 # Version 13: reduce blog fetch read timeout to 2 minutes (from 15) to move on after 40 minutes instead of 5 hours
 # Version 12: fixed pagination of the shoutout stream
@@ -66,12 +67,12 @@ START=$(date +%s)
 
 # build directory name
 PROFILE_ID_WITH_PREFIX=$PROFILE_ID
-while [[ ${#PROFILE_ID_WITH_PREFIX} -lt 3 ]]
+while [[ ${#PROFILE_ID_WITH_PREFIX} -lt 9 ]]
 do
   # id too short, prefix with 0
   PROFILE_ID_WITH_PREFIX=0$PROFILE_ID_WITH_PREFIX
 done
-PROFILE_DIR=data/${PROFILE_ID_WITH_PREFIX:0:1}/${PROFILE_ID_WITH_PREFIX:1:1}/${PROFILE_ID_WITH_PREFIX:2:1}/$PROFILE_ID
+PROFILE_DIR=data/${PROFILE_ID_WITH_PREFIX:0:3}/${PROFILE_ID_WITH_PREFIX:3:3}/${PROFILE_ID_WITH_PREFIX:6:3}/$PROFILE_ID
 
 
 USER_AGENT="Googlebot/2.1 (+http://www.googlebot.com/bot.html)"
