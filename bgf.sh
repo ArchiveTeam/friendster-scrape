@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# Version 1: ATTENTION: There is a strange problem with Friendster's forums.
-#                       Sometimes requests return a zero-length page. Retrying
-#                       does not help. If you restart the round, the pages will
-#                       work (but others, which previously worked, fail).
+# Version 2: Fixed solution for Friendster's empty file problem.
+# Version 1: There is a strange problem with Friendster's forums.
+#            Sometimes requests return a zero-length page. Retrying
+#            does not help. If you restart the round, the pages will
+#            work (but others, which previously worked, fail).
 #
 # Download a Friendster group.
 # ./bgf.sh GROUP_ID [COOKIES_FILE]
@@ -202,17 +203,16 @@ then
     tries=0
     while [ ! -f $GROUP_DIR/discussions/index_$page.html ] || [ ! -s $GROUP_DIR/discussions/index_$page.html ]
     do
-      $WGET -U "$USER_AGENT" -O $GROUP_DIR/discussions/index_$page.html "http://www.friendster.com/group-discussion/index.php?t=thread&frm_id=$forum_id&start=$page&r=$tries"
+      $WGET -U "$USER_AGENT" -O $GROUP_DIR/discussions/index_$page.html "http://www.friendster.com/group-discussion/index.php?t=thread&frm_id=$forum_id&start=$page"
       if [ ! -s $GROUP_DIR/discussions/index_$page.html ]
       then
         # zero-size file
-        echo "Error: the downloaded page is empty." 
-        sleep 10
+        echo "   (empty response, trying again)"
+        rm $GROUP_DIR/discussions/index_$page.html
       fi
-      tries=$((tries + 1))
-      if [[ $tries -ge 5 ]]
+      if [[ $tries -ge 50 ]]
       then
-        echo "Failed 5 times, skipping this page."
+        echo "   Failed 50 times, skipping this page."
         break
       fi
     done
@@ -240,21 +240,20 @@ then
     max_page=0
     while [[ $page -le $max_page ]]
     do
-      echo "   - thread page $page"
       tries=0
-      while [ ! -f $GROUP_DIR/discussions/thread_${thread_id}_$page.html ] || [ ! -s $GROUP_DIR/discussions/thread_${thread_id}_$page.html ]
+      while [ ! -f $GROUP_DIR/discussions/thread_${thread_id}_$page.html ]
       do
-        $WGET -U "$USER_AGENT" -O $GROUP_DIR/discussions/thread_${thread_id}_$page.html "http://www.friendster.com/group-discussion/index.php?t=msg&th=$thread_id&start=$page&r=$tries"
+        $WGET -U "$USER_AGENT" -O $GROUP_DIR/discussions/thread_${thread_id}_$page.html "http://www.friendster.com/group-discussion/index.php?t=msg&th=$thread_id&start=$page"
         if [ ! -s $GROUP_DIR/discussions/thread_${thread_id}_$page.html ]
         then
           # zero-size file
-          echo "Error: the downloaded page is empty." 
-          sleep 10
+          echo "   (empty response, trying again)"
+          rm $GROUP_DIR/discussions/thread_${thread_id}_$page.html
         fi
         tries=$((tries + 1))
-        if [[ $tries -ge 5 ]]
+        if [[ $tries -ge 50 ]]
         then
-          echo "Failed 5 times, skipping this page."
+          echo "   Failed 50 times, skipping this page."
           break
         fi
       done
@@ -300,8 +299,8 @@ do
 done
 
 # download each bulletin
-echo " - bulletins"
 bulletin_ids=`grep -h -o -E ";bid=[0-9]+" $GROUP_DIR/bulletin_list_*.html | grep -o -E "[0-9]+"`
+echo " - bulletins (${#bulletin_ids[*]})"
 for bid in $bulletin_ids
 do
   echo "   - bulletin $bid"
