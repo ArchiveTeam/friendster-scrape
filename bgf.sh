@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 3: Add groups to a separate directory.
 # Version 2: Fixed solution for Friendster's empty file problem.
 # Version 1: There is a strange problem with Friendster's forums.
 #            Sometimes requests return a zero-length page. Retrying
@@ -57,7 +58,7 @@ do
   # id too short, prefix with 0
   GROUP_ID_WITH_PREFIX=0$GROUP_ID_WITH_PREFIX
 done
-GROUP_DIR=data/${GROUP_ID_WITH_PREFIX:0:2}/${GROUP_ID_WITH_PREFIX:2:2}/${GROUP_ID_WITH_PREFIX:4:2}/$GROUP_ID
+GROUP_DIR=data/groups/${GROUP_ID_WITH_PREFIX:0:2}/${GROUP_ID_WITH_PREFIX:2:2}/${GROUP_ID_WITH_PREFIX:4:2}/g$GROUP_ID
 
 
 USER_AGENT="Googlebot/2.1 (+http://www.googlebot.com/bot.html)"
