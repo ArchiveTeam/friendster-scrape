@@ -20,9 +20,10 @@ PV=`which pv`
 
 if [ -n "$PV" ]; then
 	echo collecting total data size
-	TARSIZE=`du --block-size=512 -c $DATADIR | cut -d " " -f 1`
-	WC=`wc -l $TARLIST|cut -d " " -f 1`
-	TARSIZE=$((TARSIZE + WC + 1))
+	TARSIZE=`du --block-size=512 -s $DATADIR | cut -f 1`
+#	WC=`find $DATADIR | wc -l | cut -d " " -f 1`
+#	TARSIZE=$((TARSIZE + WC + 1))
+	TARSIZE=$((TARSIZE + 1))
 	TARSIZE=$((TARSIZE * 512))
 
 	echo tarring up data
