@@ -93,6 +93,7 @@ if ! grep -q "http://www.friendster.com/logout.php" $login_result_file
 then
   echo "Logging in..."
   rm -f $COOKIES_FILE
+  rm -f $login_result_file
 
   $WGET -U "$USER_AGENT" http://www.friendster.com/login.php -O $login_result_file --post-data="_submitted=1&next=/&tzoffset=-120&email=$USERNAME&password=$PASSWORD"
 
