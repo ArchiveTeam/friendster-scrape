@@ -89,7 +89,7 @@ $WGET -U "$USER_AGENT" -O $login_result_file "http://www.friendster.com/group/ta
 
 
 # check if we are logged in, if not: do so
-if ! grep -q "http://www.friendster.com/logout.php" $GROUP_DIR/group.html
+if ! grep -q "http://www.friendster.com/logout.php" $login_result_file
 then
   echo "Logging in..."
   rm -f $COOKIES_FILE
@@ -102,9 +102,9 @@ then
   else
     echo "Login failed."
   fi
-
-  rm -f $login_result_file
 fi
+
+rm -f $login_result_file
 
 
 # is this group available?

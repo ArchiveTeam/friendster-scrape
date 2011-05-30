@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 4: Fixed problem with downloading bulletins.
 # Version 3: Add groups to a separate directory.
 # Version 2: Fixed solution for Friendster's empty file problem.
 # Version 1: There is a strange problem with Friendster's forums.
@@ -300,12 +301,12 @@ do
 done
 
 # download each bulletin
-bulletin_ids=`grep -h -o -E ";bid=[0-9]+" $GROUP_DIR/bulletin_list_*.html | grep -o -E "[0-9]+"`
-echo " - bulletins (${#bulletin_ids[*]})"
-for bid in $bulletin_ids
+bulletin_ids=( `grep -h -o -E ";bid=[0-9]+" $GROUP_DIR/bulletin_list_*.html | grep -o -E "[0-9]+"` )
+echo " - bulletins (${#bulletin_ids[@]})"
+for bid in "${bulletin_ids[@]}"
 do
   echo "   - bulletin $bid"
-  $WGET -U "$USER_AGENT" --max-redirect=0 -O $GROUP_DIR/bulletins/bulletin_$bid.html "http://www.friendster.com/group/tabbulletin.php?gid=$GROUP_ID&bid=$bid"
+  $WGET -U "$USER_AGENT" --max-redirect=0 -O $GROUP_DIR/bulletins/bulletin_$bid.html "http://www.friendster.com/group/bulletin.php?gid=$GROUP_ID&bid=$bid"
 done
 
 
