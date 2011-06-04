@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 16: during blog download, also reject "&" and ";", again to avoid near-infinite recursion
 # Version 15: change directory structure; the old one wouldn't handle 100k chucks of userids > 10,000,000 on most filesystems
 # Version 14: during blog download, reject files beginning with < to avoid infinite recursion/expansion on bad urls.
 # Version 13: reduce blog fetch read timeout to 2 minutes (from 15) to move on after 40 minutes instead of 5 hours
@@ -446,7 +447,7 @@ then
        -e robots=off \
        -a "$PROFILE_DIR/wget.log" \
        -nv -N -r -l 20 --no-remove-listing \
-       -np -E -H -k -K -p -R "<*" \
+       -np -E -H -k -K -p -R '<*,&,;' \
        --read-timeout=120 \
        -U "$USER_AGENT" \
        -D "${blog_host}.blog.friendster.com,${blog_host}.blogs.friendster.com" \
