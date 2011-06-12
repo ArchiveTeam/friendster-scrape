@@ -20,10 +20,9 @@ PV=`which pv`
 
 if [ -n "$PV" ]; then
 	echo collecting total data size
-	TARSIZE=`du --block-size=512 -s $DATADIR | cut -f 1`
-#	WC=`find $DATADIR | wc -l | cut -d " " -f 1`
-#	TARSIZE=$((TARSIZE + WC + 1))
-	TARSIZE=$((TARSIZE + 1))
+	DIRCOUNT=`find $DATADIR -type d | wc -l`
+	FILEBLOCKS=`find $DATADIR -type f -printf "%s\n" | awk '{SUM += 1 + int(($1/512)+0.999) } END {print SUM}'`
+	TARSIZE=$((DIRCOUNT + FILEBLOCKS + 2))
 	TARSIZE=$((TARSIZE * 512))
 
 	echo tarring up data
