@@ -31,6 +31,6 @@ if [ -n "$PV" ]; then
 else
 	# tar everything up
 	echo tarring up data
-	tar cjf friendster.${RANGE}.tar.bz2 --no-recursion --totals $DATADIR
+	tar cjf friendster.${RANGE}.tar.bz2 --totals $DATADIR
 fi
 
