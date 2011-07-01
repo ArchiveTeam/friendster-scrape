@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Version 17: tell wget to only use ipv4. friendster doesn't have ipv6 servers. This reduces DNS overhead.
 # Version 16: during blog download, also reject "&" and ";", again to avoid near-infinite recursion
 # Version 15: change directory structure; the old one wouldn't handle 100k chucks of userids > 10,000,000 on most filesystems
 # Version 14: during blog download, reject files beginning with < to avoid infinite recursion/expansion on bad urls.
@@ -77,7 +78,7 @@ PROFILE_DIR=data/${PROFILE_ID_WITH_PREFIX:0:3}/${PROFILE_ID_WITH_PREFIX:3:3}/${P
 
 
 USER_AGENT="Googlebot/2.1 (+http://www.googlebot.com/bot.html)"
-WGET="wget --no-clobber -nv -a $PROFILE_DIR/wget.log"
+WGET="wget --no-clobber -nv -4 -a $PROFILE_DIR/wget.log"
 
 
 # incomplete result from a previous run?
@@ -444,7 +445,7 @@ then
   echo " - blog: $blog_url"
   echo "   (depending on the size of the blog, this can take a very long time)"
   wget --directory-prefix="$PROFILE_DIR/blog/" \
-       -e robots=off \
+       -4 -e robots=off \
        -a "$PROFILE_DIR/wget.log" \
        -nv -N -r -l 20 --no-remove-listing \
        -np -E -H -k -K -p -R '<*,&,;' \
